@@ -16,6 +16,7 @@
 //#include <Eigen/Core>
 #include <memory>
 #include <vector>
+#include <igl/AABB.h>
 
 
 // Alec: This is a mesh class containing a variety of data types (normals,
@@ -175,6 +176,15 @@ public:
   Eigen::Matrix<unsigned char,Eigen::Dynamic,Eigen::Dynamic> texture_G;
   Eigen::Matrix<unsigned char,Eigen::Dynamic,Eigen::Dynamic> texture_B;
   Eigen::Matrix<unsigned char,Eigen::Dynamic,Eigen::Dynamic> texture_A;
+
+
+  //Colision Detection --------------------------------------
+  igl::AABB<Eigen::MatrixXd, 3> tree;
+  IGL_INLINE void toggle_box();
+  IGL_INLINE double getDiameter();
+  IGL_INLINE void igl::opengl::ViewerData::init_data_structures();
+  // --------------------------------------------------------
+
 
   // Overlays
 

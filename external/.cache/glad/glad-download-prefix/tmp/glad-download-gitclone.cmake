@@ -5,7 +5,7 @@ if(NOT "C:/Dev/EngineForAnimationCourse/external/.cache/glad/glad-download-prefi
 endif()
 
 execute_process(
-  COMMAND ${CMAKE_COMMAND} -E remove_directory "C:/Dev/EngineForAnimationCourse/cmake/../external/glad"
+  COMMAND ${CMAKE_COMMAND} -E rm -rf "C:/Dev/EngineForAnimationCourse/cmake/../external/glad"
   RESULT_VARIABLE error_code
   )
 if(error_code)
@@ -17,7 +17,7 @@ set(error_code 1)
 set(number_of_tries 0)
 while(error_code AND number_of_tries LESS 3)
   execute_process(
-    COMMAND "C:/Program Files/Git/cmd/git.exe" -c http.sslVerify=false clone --config advice.detachedHead=false "https://github.com/libigl/libigl-glad.git" "glad"
+    COMMAND "C:/Program Files/Git/cmd/git.exe" -c http.sslVerify=false clone --no-checkout --config "advice.detachedHead=false" --config "advice.detachedHead=false" "https://github.com/libigl/libigl-glad.git" "glad"
     WORKING_DIRECTORY "C:/Dev/EngineForAnimationCourse/cmake/../external"
     RESULT_VARIABLE error_code
     )
@@ -40,11 +40,14 @@ if(error_code)
   message(FATAL_ERROR "Failed to checkout tag: '09b4969c56779f7ddf8e6176ec1873184aec890f'")
 endif()
 
-execute_process(
-  COMMAND "C:/Program Files/Git/cmd/git.exe" -c http.sslVerify=false submodule update --recursive --init 
-  WORKING_DIRECTORY "C:/Dev/EngineForAnimationCourse/cmake/../external/glad"
-  RESULT_VARIABLE error_code
-  )
+set(init_submodules TRUE)
+if(init_submodules)
+  execute_process(
+    COMMAND "C:/Program Files/Git/cmd/git.exe" -c http.sslVerify=false submodule update --recursive --init 
+    WORKING_DIRECTORY "C:/Dev/EngineForAnimationCourse/cmake/../external/glad"
+    RESULT_VARIABLE error_code
+    )
+endif()
 if(error_code)
   message(FATAL_ERROR "Failed to update submodules in: 'C:/Dev/EngineForAnimationCourse/cmake/../external/glad'")
 endif()

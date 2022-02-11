@@ -114,10 +114,17 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			rndr->core().is_animating = !rndr->core().is_animating;
 			break;
 		}
+		case 'b':
+		case 'B':
+		{
+			//scn->loadCubemap();
+			break;
+		}
 		case 'F':
 		case 'f':
 		{
-			scn->data().set_face_based(!scn->data().face_based);
+			//scn->data().set_face_based(!scn->data().face_based);
+			scn->changeView();
 			break;
 		}
 		case 'I':
@@ -157,6 +164,15 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 		case ':':
 			scn->data().show_faceid = !scn->data().show_faceid;
 			break;
+		case 'k':
+		case 'K':
+			//rndr->core().camera_view_angle = 45;
+			rndr->core().camera_eye = Eigen::Vector3f(0.00001,10,0);
+			rndr->core().camera_center = Eigen::Vector3f(0, 0, 0);
+			rndr->core().camera_up = Eigen::Vector3f(0, 1, 0);
+			break;
+
+			//rndr->RotateCamera(0,90.0);
 		case 'w':
 		case 'W':
 			rndr->TranslateCamera(Eigen::Vector3f(0, 0, 0.03f));
@@ -170,17 +186,20 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			scn->data().SetCenterOfRotation(tmp);
 			break;
 		case GLFW_KEY_UP:
-			rndr->TranslateCamera(Eigen::Vector3f(0, 0.01f,0));
+			//rndr->TranslateCamera(Eigen::Vector3f(0, 0.01f,0));
+			scn->moveUp();
 			break;
 		case GLFW_KEY_DOWN:
-			rndr->TranslateCamera(Eigen::Vector3f(0, -0.01f,0));
-
+			//rndr->TranslateCamera(Eigen::Vector3f(0, -0.01f,0));
+			scn->moveDown();
 			break;
 		case GLFW_KEY_LEFT:
-				rndr->TranslateCamera(Eigen::Vector3f(-0.01f, 0,0));
+			//rndr->TranslateCamera(Eigen::Vector3f(-0.01f, 0,0));
+			scn->moveLeft();
 			break;
 		case GLFW_KEY_RIGHT:
-			rndr->TranslateCamera(Eigen::Vector3f(0.01f, 0, 0));
+			//rndr->TranslateCamera(Eigen::Vector3f(0.01f, 0, 0));
+			scn->moveRight();
 			break;
 		case ' ':
 

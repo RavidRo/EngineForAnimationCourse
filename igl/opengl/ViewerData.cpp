@@ -728,3 +728,67 @@ IGL_INLINE void igl::opengl::ViewerData::updateGL(
     }
   }
 }
+
+
+IGL_INLINE void igl::opengl::ViewerData::init_data_structures() {
+    tree.init(V, F);
+    //toggle_box();
+}
+
+IGL_INLINE void igl::opengl::ViewerData::toggle_box() {
+    Eigen::Vector3d bottomLeftFloor = tree.m_box.corner(tree.m_box.BottomLeftFloor);
+    Eigen::Vector3d bottomRightFloor = tree.m_box.corner(tree.m_box.BottomRightFloor);
+    Eigen::Vector3d topLeftFloor = tree.m_box.corner(tree.m_box.TopLeftFloor);
+    Eigen::Vector3d topRightFloor = tree.m_box.corner(tree.m_box.TopRightFloor);
+
+    Eigen::Vector3d bottomLeftCeil = tree.m_box.corner(tree.m_box.BottomLeftCeil);
+    Eigen::Vector3d bottomRightCeil = tree.m_box.corner(tree.m_box.BottomRightCeil);
+    Eigen::Vector3d topLeftCeil = tree.m_box.corner(tree.m_box.TopLeftCeil);
+    Eigen::Vector3d topRightCeil = tree.m_box.corner(tree.m_box.TopRightCeil);
+
+    Eigen::MatrixXd box_edges_from;
+    Eigen::MatrixXd box_edges_to;
+    box_edges_from.resize(12, 3);
+    box_edges_to.resize(12, 3);
+
+    box_edges_from.row(0) = bottomLeftFloor;
+    box_edges_from.row(1) = bottomRightFloor;
+    box_edges_from.row(2) = topRightFloor;
+    box_edges_from.row(3) = topLeftFloor;
+
+    box_edges_from.row(4) = bottomLeftCeil;
+    box_edges_from.row(5) = bottomRightCeil;
+    box_edges_from.row(6) = topRightCeil;
+    box_edges_from.row(7) = topLeftCeil;
+
+    box_edges_from.row(8) = bottomLeftFloor;
+    box_edges_from.row(9) = bottomRightFloor;
+    box_edges_from.row(10) = topRightFloor;
+    box_edges_from.row(11) = topLeftFloor;
+
+    box_edges_to.row(0) = bottomRightFloor;
+    box_edges_to.row(1) = topRightFloor;
+    box_edges_to.row(2) = topLeftFloor;
+    box_edges_to.row(3) = bottomLeftFloor;
+
+    box_edges_to.row(4) = bottomRightCeil;
+    box_edges_to.row(5) = topRightCeil;
+    box_edges_to.row(6) = topLeftCeil;
+    box_edges_to.row(7) = bottomLeftCeil;
+
+    box_edges_to.row(8) = bottomLeftCeil;
+    box_edges_to.row(9) = bottomRightCeil;
+    box_edges_to.row(10) = topRightCeil;
+    box_edges_to.row(11) = topLeftCeil;
+
+    /* box_edges_from << bottomLeftFloor, bottomRightFloor, topRightFloor, topLeftFloor;
+     box_edges_to << bottomRightFloor, topRightFloor, topLeftFloor, bottomLeftFloor;*/
+
+    add_edges(box_edges_from, box_edges_to, Eigen::RowVector3d(0, 1, 0));
+}
+
+IGL_INLINE double igl::opengl::ViewerData::getDiameter() {
+    Eigen::Vector3d topLeftFloor = tree.m_box.corner(tree.m_box.TopLeftFloor);
+    Eigen::Vector3d topRightFloor = tree.m_box.corner(tree.m_box.TopRightFloor);
+    return (topLeftFloor - topRightFloor).norm();
+}
