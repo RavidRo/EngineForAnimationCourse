@@ -2,6 +2,7 @@
 #include <string>
 #include <GLFW/glfw3.h>
 //#include "igl/opengl/glfw/renderer.h"
+
 #define EXIT_FAILURE 1
 struct GLFWwindow;
 
@@ -14,13 +15,13 @@ public:
 
 	void SwapBuffers();
 	void PollEvents();
-
+	void* renderer;
 	void SetRenderer(void* userPointer);
 	void* GetScene();
 	void AddKeyCallBack(void(*func)(GLFWwindow*, int, int, int, int));
 	void AddMouseCallBacks(void (*mousebuttonfun)(GLFWwindow*, int, int, int), void(*scrollfun)(GLFWwindow*, double, double), void (*cursorposfun)(GLFWwindow*, double, double));
 	void AddResizeCallBack(void (*windowsizefun)(GLFWwindow*, int, int));
-
+	void moveFPVdisplay(float y, float p, bool constraint);
 	
 	~Display();
 //private:

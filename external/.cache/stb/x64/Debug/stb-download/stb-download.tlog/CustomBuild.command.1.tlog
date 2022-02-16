@@ -1,18 +1,6 @@
 ^C:\DEV\ENGINEFORANIMATIONCOURSE\EXTERNAL\.CACHE\STB\CMAKEFILES\50D1F4993B968176E85C8BEE94448529\STB-DOWNLOAD-MKDIR.RULE
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/cmake/../external/stb
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/build/stb-build
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/stb/stb-download-prefix
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/stb/stb-download-prefix/tmp
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/stb/stb-download-prefix/src/stb-download-stamp/Debug
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/stb/stb-download-prefix/src
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/stb/stb-download-prefix/src/stb-download-stamp
+"C:\Program Files\CMake\bin\cmake.exe" -P C:/Dev/EngineForAnimationCourse/external/.cache/stb/stb-download-prefix/tmp/stb-download-mkdirs.cmake
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Dev/EngineForAnimationCourse/external/.cache/stb/stb-download-prefix/src/stb-download-stamp/Debug/stb-download-mkdir
 if %errorlevel% neq 0 goto :cmEnd

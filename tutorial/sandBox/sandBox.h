@@ -6,14 +6,14 @@
 #include <vector>
 #include <queue>
 #include <igl/opengl/glfw/renderer.h>
+#include <external/irrKlang/include/irrKlang.h>
 
 typedef std::vector<Eigen::Quaterniond, Eigen::aligned_allocator<Eigen::Quaterniond> > RotationList;
-
 
 class SandBox : public igl::opengl::glfw::Viewer
 {
 public:
-	SandBox(Renderer *rend);
+	SandBox(Display* disp,Renderer* rend);
 	~SandBox();
 	void Init(const std::string& config);
 	igl::opengl::ViewerData* snake = 0;
@@ -25,7 +25,15 @@ public:
 	RotationList vQ;
 	std::vector<std::queue<Eigen::Matrix3d>> rotationQueues;
 	std::vector<std::queue<Eigen::Vector3d>> translationQueues;
+	irrklang::ISoundEngine* SoundEngine;
+	irrklang::ISound* backgroundMusic;
+	bool ObjectIntersectsSnake(Eigen::Vector3d headPos, Eigen::Vector3d objectPos,int i);
+
+	void setupLevel();
 	int score;
+	int maxScore;
+	int numOfSpheres;
+
 	Eigen::MatrixXd calculateJointsMatrix();
 	void setupSnake();
 	void setupObjects();
@@ -37,8 +45,11 @@ public:
 	void resetRotation();
 	void setIKOverlay();
 
+	void moveFPV();
+
+	bool firstTime;
+
 	void SandBox::test();
-	void SandBox::loadCubemap();
 
 	void moveLeft();
 	void moveRight();
@@ -48,15 +59,23 @@ public:
 	bool moved = false;
 	bool firstPersonView;
 	Eigen::Vector3d getHeadPos();
+	int getScore();
+	int getMaxScore();
+
+	bool getFirstTime();
+	bool notPlayed;
+	void playMusic();
+
+	bool muted;
 
 private:
 	// Prepare array-based edge data structures and priority queue
 	void Animate();
-	void move(const double moveBy, Eigen::Matrix3d rotMatrix);
+	void move(const double moveBy, Eigen::Matrix3d rotMatrix, bool LR);
 	int SandBox::intersect(igl::opengl::ViewerData* data);
 	int SandBox::intersectHead();
 	void eatSphere(int i);
 	void incScore();
-	Renderer *rndr;
+	Renderer* rndr;
+	Display* display;
 };
-

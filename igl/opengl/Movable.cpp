@@ -41,7 +41,7 @@ void Movable::MyTranslate(Eigen::Vector3d amt, bool preRotation)
 }
 void Movable::TranslateInSystem(Eigen::Matrix3d rot, Eigen::Vector3d amt)
 {
-	Tout.pretranslate(rot.transpose()*amt);
+	Tout.pretranslate(rot.transpose() * amt);
 }
 
 void Movable::SetCenterOfRotation(Eigen::Vector3d amt)

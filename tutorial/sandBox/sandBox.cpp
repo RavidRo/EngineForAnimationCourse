@@ -9,6 +9,7 @@
 #include <igl/directed_edge_parents.h>
 #include <math.h>
 #include <stb/stb_image.h>
+
 using namespace std;
 
 // Settings
@@ -18,18 +19,17 @@ double num_of_joints = 16;
 double tail = (-1) * (snake_length / 2);
 double head = snake_length / 2;
 double dist_joint = snake_length / num_of_joints;
-const double moveBy = 0.05;
+const double moveBy = 0.05 * scale_num;
 const double rotateBy = 0.1;
+const double cameraDistance = 10.0;
 
-vector<std::string> faces
-{
-	"C:/Users/romra/OneDrive/Desktop/faces/Daylight Box_Right.bmp",
-	"C:/Users/romra/OneDrive/Desktop/faces/Daylight Box_Left.bmp",
-	"C:/Users/romra/OneDrive/Desktop/faces/Daylight Box_Top.bmp",
-	"C:/Users/romra/OneDrive/Desktop/faces/Daylight Box_Bottom.bmp",
-	"C:/Users/romra/OneDrive/Desktop/faces/Daylight Box_Front.bmp",
-	"C:/Users/romra/OneDrive/Desktop/faces/Daylight Box_Back.bmp"
-};
+double delay = 4;
+double frameNum = 0;
+
+float lastXs = 0;
+float lastYs = 0;
+float lastZs = 0;
+
 string snakeName = "C:/Dev/EngineForAnimationCourse/tutorial/data/snake2.obj";
 
 Eigen::Vector3d toCenter(Movable transd) {
@@ -38,58 +38,42 @@ Eigen::Vector3d toCenter(Movable transd) {
 }
 
 
-SandBox::SandBox(Renderer *rend)
+SandBox::SandBox(Display* disp, Renderer* rend)
 {
+	this->display = disp;
 	this->rndr = rend;
-	firstPersonView = false;
+	firstPersonView = true;
+	changeView();
 	score = 0;
-	rndr->core().camera_eye = Eigen::Vector3f(0.00001, 5*scale_num, 0);
-	rndr->core().camera_center = Eigen::Vector3f(0, 0, 0);
-	rndr->core().camera_up = Eigen::Vector3f(0, 1, 0);
+	maxScore = 0;
+	numOfSpheres = 3;
+	maxScore = 0;
+	firstTime = true;
+	SoundEngine = irrklang::createIrrKlangDevice();
+	this->muted = false;
+	notPlayed = false;
+	playMusic();
+}
+
+bool SandBox::getFirstTime() {
+	return firstTime;
 }
 
 void SandBox::changeView() {
 	firstPersonView = !firstPersonView;
 	if (!firstPersonView) {
-		rndr->core().camera_eye = Eigen::Vector3f(0.00001, 5*scale_num, 0);
+		rndr->core().camera_eye = Eigen::Vector3f(0.00001, cameraDistance, 0);
 		rndr->core().camera_center = Eigen::Vector3f(0, 0, 0);
 		rndr->core().camera_up = Eigen::Vector3f(0, 1, 0);
+		display->moveFPVdisplay(-90, 0, false);
 	}
 }
 
-//void SandBox::loadCubemap(){
-//	unsigned int textureID;
-//	glGenTextures(1, &textureID);
-//	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-//
-//	int width, height, nrChannels;
-//	for (unsigned int i = 0; i < faces.size(); i++)
-//	{
-//		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-//		if (data)
-//		{
-//			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-//				0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
-//			);
-//			stbi_image_free(data);
-//		}
-//		else
-//		{
-//			std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
-//			stbi_image_free(data);
-//		}
-//	}
-//	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-//
-//	//return textureID;
-//}
+void SandBox::playMusic() {
+	backgroundMusic = SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/breakout.mp3", true, false, true);
+}
 
-
-Eigen::Vector3d SandBox::getHeadPos(){
+Eigen::Vector3d SandBox::getHeadPos() {
 	return toCenter(joints[0]);
 }
 
@@ -101,7 +85,7 @@ void SandBox::paintWeights() {
 		Eigen::Vector3d currentVertex = snake->V.row(i);
 		vector<double> weights;
 		for (int j = 0; j < joints.size(); j++)
-		{	
+		{
 			double vertex = currentVertex.z();
 			double joint = toCenter(joints.at(j)).z();
 			double weight;
@@ -109,7 +93,7 @@ void SandBox::paintWeights() {
 				weight = (vertex <= joint) ? 1.0 : 0.0;
 			}
 			else {
-				double nextJoint = toCenter(joints.at(j+1)).z();
+				double nextJoint = toCenter(joints.at(j + 1)).z();
 				if (j == 0 && vertex >= joint) {
 					weight = 1;
 				}
@@ -143,7 +127,7 @@ void SandBox::setupJoints() {
 	}
 
 	BE.resize(joints.size() - 1, 2);
-	for (size_t i = 0; i < num_of_joints-1; i++)
+	for (size_t i = 0; i < num_of_joints - 1; i++)
 	{
 		BE.row(i) = Eigen::Vector2i(i, i + 1);
 	}
@@ -153,8 +137,13 @@ void SandBox::setupJoints() {
 	{
 		rotationQueues.push_back(queue<Eigen::Matrix3d>());
 		translationQueues.push_back(queue<Eigen::Vector3d>());
-		translationQueues[i].push(Eigen::Vector3d(0, 0, dist_joint/2));
-		translationQueues[i].push(Eigen::Vector3d(0, 0, dist_joint/2));
+
+		if (delay > 0 && i > 0) {
+			for (int j = 0; j < delay; j++)
+			{
+				translationQueues[i].push(Eigen::Vector3d(0, 0, dist_joint / delay));
+			}
+		}
 	}
 }
 
@@ -170,7 +159,7 @@ Eigen::MatrixXd SandBox::calculateJointsMatrix() {
 
 
 void SandBox::debugSnake() {
-	Eigen::RowVector3d tail = toCenter(joints.at(joints.size()-1)).transpose();
+	Eigen::RowVector3d tail = toCenter(joints.at(joints.size() - 1)).transpose();
 	Eigen::RowVector3d head = toCenter(joints[0]).transpose();
 
 	Eigen::MatrixXd debugPoints;
@@ -197,35 +186,36 @@ void SandBox::setupSnake() {
 
 	snake = &data();
 
-	// Scaling the snake
-	Eigen::Vector3d scale = Eigen::Vector3d(1, 1, scale_num);
-	snake->MyScale(scale);
-
 	setupJoints();
 	paintWeights();
 	resetTranspose();
 	resetRotation();
 	debugSnake();
+
+	// Scaling the snake
+	Eigen::Vector3d scale = Eigen::Vector3d(1, 1, scale_num);
+	snake->MyScale(scale);
 }
 
-void SandBox::Init(const std::string &config)
+void SandBox::Init(const std::string& config)
 {
 	setupObjects();
+
 	std::string item_name;
 	std::ifstream nameFileout;
 	nameFileout.open(config);
 	if (!nameFileout.is_open())
 	{
-		std::cout << "Can't open file "<<config << std::endl;
+		std::cout << "Can't open file " << config << std::endl;
 	}
 	else
 	{
-		
+
 		while (nameFileout >> item_name)
 		{
 			std::cout << "openning " << item_name << std::endl;
 			load_mesh_from_file(item_name);
-			
+
 			parents.push_back(-1);
 			//data().add_points(Eigen::RowVector3d(0, 0, 0), Eigen::RowVector3d(1, 1, 1));
 			data().show_overlay_depth = false;
@@ -238,11 +228,13 @@ void SandBox::Init(const std::string &config)
 			}
 
 			//data().SetCenterOfRotation(Eigen::Vector3d(10,0, 0));
-			
+
 		}
 		nameFileout.close();
 	}
 	//MyTranslate(Eigen::Vector3d(0, 0, -1), true);
+
+
 	
 	data().set_colors(Eigen::RowVector3d(0.9, 0.1, 0.1));
 
@@ -254,19 +246,48 @@ void SandBox::Init(const std::string &config)
 	for (int i = 0; i < data_list.size(); i++) {
 		data_list[i].init_data_structures();
 	}
-
 }
 
-void SandBox::setupObjects() {
-	string spherePath = "C:/Dev/EngineForAnimationCourse/tutorial/data/sphere.obj";
-	int numOfSpheres = 3;
+bool SandBox::ObjectIntersectsSnake(Eigen::Vector3d headPos, Eigen::Vector3d objectPos,int i) {
+	return ((objectPos - headPos).norm() < data(i).getDiameter() / 2 + 0.1);
+}
+
+void SandBox::setupLevel() {
+	srand(time(0));
+	Eigen::Vector3d headPos = toCenter(joints[0]);
 	int num1 = 6 * scale_num;
 	int num2 = 3 * scale_num;
-	srand(time(0));
 	for (int i = 0; i < numOfSpheres; i++) {
 		double randX = (rand() % num1) - num2;
 		double randY = 0;
 		double randZ = (rand() % num1) - num2;
+		while (ObjectIntersectsSnake(headPos,Eigen::Vector3d(randX,randY,randZ),i)) {
+			cout << "same location bruv" << endl;
+			randX = (rand() % num1) - num2;
+			randY = 0;
+			randZ = (rand() % num1) - num2;
+		}
+		Eigen::Vector3d resetVector = -1 * toCenter(data_list[i]);
+		data_list[i].MyTranslate(resetVector, true);
+		data_list[i].MyTranslate(Eigen::Vector3d(randX, randY, randZ), true);
+	}
+	firstTime = false;
+	maxScore += numOfSpheres;
+	numOfSpheres += 1;
+	notPlayed = true;
+}
+
+void SandBox::setupObjects() {
+	string spherePath = "C:/Dev/EngineForAnimationCourse/tutorial/data/sphere.obj";
+
+	srand(time(0));
+
+	//int num1 = 6 * scale_num;
+	//int num2 = 3 * scale_num;
+	for (int i = 0; i < 20; i++) {
+		//double randX = (rand() % num1) - num2;
+		//double randY = 0;
+		//double randZ = (rand() % num1) - num2;
 		load_mesh_from_file(spherePath);
 
 		parents.push_back(-1);
@@ -275,7 +296,7 @@ void SandBox::setupObjects() {
 		data().point_size = 10;
 		data().line_width = 2;
 		data().set_visible(false, 1);
-		data().MyTranslate(Eigen::Vector3d(randX, randY, randZ),true);
+		data().MyTranslate(Eigen::Vector3d(100, 100, 100), true);
 
 	}
 }
@@ -333,20 +354,57 @@ void SandBox::resetRotation() {
 
 void SandBox::skin() {
 	Eigen::MatrixXd U;
-	
+
 	igl::dqs(snake->V, W, vQ, vT, U);
 	snake->set_vertices(U);
 	resetTranspose();
 	resetRotation();
 	moved = false;
-	
+
 }
-void SandBox::move(const double moveBy, Eigen::Matrix3d rotMatrix) {
+void SandBox::move(double moveBy, Eigen::Matrix3d rotMatrix, bool LR) {
 	if (!moved) {
+		if (frameNum < delay) {
+			moveBy = dist_joint / delay;
+			frameNum++;
+		}
+
+		//Eigen::Matrix3d headRot = joints[0].GetRotation();
+		//Eigen::Matrix3d sceneRot = GetRotation();
+
 		Eigen::Matrix3d newRotation = joints[0].GetRotation();
+		Eigen::Vector3d rotationVector = newRotation * Eigen::Vector3d(0,0,1);
+
+		//if (LR) {
+		//	newRotation.col(0) = headRot.col(0);
+		//	newRotation.col(1) = sceneRot.col(1);
+		//	newRotation.col(2) = headRot.col(2);
+		//}
+		//else {
+		//	newRotation.col(0) = sceneRot.col(0);
+		//	newRotation.col(1) = headRot.col(1);
+		//	newRotation.col(2) = headRot.col(2);
+		//}
+
+		//cout << newRotation << "\n" << endl;
+		//newRotation = GetRotation();
 		Eigen::Vector3d yTranslate = newRotation * Eigen::Vector3d(0, 0, moveBy);
 
-		translationQueues[0].push(yTranslate);
+		//if (LR) {
+		//	yTranslate[1] = 1;
+		//}
+		//else {
+		//	yTranslate[0] = 1;
+		//}
+
+		//cout << yTranslate << "\n" << endl;
+
+		Eigen::Vector3d yTranslateFixedScale = Eigen::Vector3d(yTranslate.x(), yTranslate.y(), yTranslate.z() / scale_num);
+
+		cout << yTranslateFixedScale << "\n" << endl;
+
+
+		translationQueues[0].push(yTranslateFixedScale);
 		rotationQueues[0].push(rotMatrix);
 		for (size_t i = 0; i < num_of_joints; i++)
 		{
@@ -372,44 +430,56 @@ void SandBox::move(const double moveBy, Eigen::Matrix3d rotMatrix) {
 		// TODO: Fix this
 		cout << "MOVED TWICE" << endl;
 	}
-
 }
 
 void SandBox::moveLeft() {
+	Eigen::Matrix3d upRot;
+	upRot <<
+		cos(rotateBy), -1 * sin(rotateBy), 0,
+		sin(rotateBy), cos(rotateBy), 0,
+		0, 0, 1;
 	Eigen::Matrix3d yRot;
 	yRot <<
 		cos(rotateBy), 0, sin(rotateBy),
 		0, 1, 0,
 		-1 * sin(rotateBy), 0, cos(rotateBy);
 
-	move(moveBy, yRot);
+	move(moveBy, yRot, true);
 }
 void SandBox::moveRight() {
 	Eigen::Matrix3d yRot;
 	yRot <<
-		cos(-1*rotateBy), 0, sin(-1*rotateBy),
+		cos(-1 * rotateBy), 0, sin(-1 * rotateBy),
 		0, 1, 0,
-		-1 * sin(-1*rotateBy), 0, cos(-1*rotateBy);
+		-1 * sin(-1 * rotateBy), 0, cos(-1 * rotateBy);
 
-	move(moveBy, yRot);
+	move(moveBy, yRot, true);
 }
 void SandBox::moveDown() {
 	Eigen::Matrix3d xRot;
 	xRot <<
 		1, 0, 0,
-		0, cos(rotateBy), -1*sin(rotateBy),
+		0, cos(rotateBy), -1 * sin(rotateBy),
 		0, sin(rotateBy), cos(rotateBy);
 
-	move(moveBy, xRot);
+	move(moveBy, xRot, false);
 }
 void SandBox::moveUp() {
 	Eigen::Matrix3d xRot;
 	xRot <<
 		1, 0, 0,
-		0, cos(-1*rotateBy), -1 * sin(-1*rotateBy),
-		0, sin(-1*rotateBy), cos(-1*rotateBy);
+		0, cos(-1 * rotateBy), -1 * sin(-1 * rotateBy),
+		0, sin(-1 * rotateBy), cos(-1 * rotateBy);
 
-	move(moveBy, xRot);
+	move(moveBy, xRot, false);
+}
+
+int SandBox::getScore() {
+	return score;
+}
+
+int SandBox::getMaxScore() {
+	return maxScore;
 }
 
 // ------------------------------------ COLISSION DETECTION ------------------------------------
@@ -593,11 +663,12 @@ void SandBox::moveUp() {
 
 int SandBox::intersectHead() {
 	Eigen::Vector3d headPos = toCenter(joints[0]);
+	Eigen::Vector3d headPosFixedScale = Eigen::Vector3d(headPos.x(), headPos.y(), headPos.z() * scale_num);
 	for (int i = 0; i < data_list.size() - 1; i++)
 	{
 		if (&data_list[i] != snake) {
 			double diameter = data(i).getDiameter();
-			if ((toCenter(data(i)) - headPos).norm() < diameter/2 + 0.1) {
+			if ((toCenter(data(i)) - headPosFixedScale).norm() < diameter / 2 + 0.1) {
 				return i;
 			}
 		}
@@ -610,10 +681,53 @@ void SandBox::incScore() {
 }
 
 void SandBox::eatSphere(int dataNum) {
-	data(dataNum).clear();
-	data(dataNum).MyTranslate(Eigen::Vector3d(100, 100, 100),false);
+	SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/eatSphere.wav");
+	data(dataNum).MyTranslate(Eigen::Vector3d(100, 100, 100), false);
 	incScore();
 	cout << "Score: " << score << endl;
+}
+
+void SandBox::moveFPV(){
+	const Eigen::Vector3f headPos = getHeadPos().cast<float>();
+	const Eigen::Vector3f headPosFixedScale = Eigen::Vector3f(headPos.x(), headPos.y(), headPos.z() * scale_num);
+	Eigen::Vector3f rotationVector = (joints[0].GetRotation() * Eigen::Vector3d(0, 0, 1)).cast<float>();
+	Eigen::Vector3f upVector = (joints[0].GetRotation() * Eigen::Vector3d(0, 1, 0)).cast<float>();
+
+
+	Eigen::Vector3f zUnit = Eigen::Vector3f(0, 0, 1);
+	Eigen::Vector3f yUnit = Eigen::Vector3f(0, 1, 0);
+
+
+	Eigen::Vector3f originRot = zUnit;
+	Eigen::Vector3f rotationVectorOnPlane = Eigen::Vector3f(rotationVector.x(), 0, rotationVector.z());
+
+	Eigen::Vector3f planeNormal = yUnit;
+
+	float yaw = -1 * (std::atan2(originRot.cross(rotationVectorOnPlane).norm(), originRot.dot(rotationVectorOnPlane)));
+	float pitch = std::atan2(planeNormal.cross(rotationVector).norm(), planeNormal.dot(rotationVector));
+
+	yaw = (yaw / M_PI) * 180;
+	pitch = 90 - ((pitch / M_PI) * 180);
+
+	if (rotationVectorOnPlane.x() < 0) {
+		yaw = -yaw;
+	}
+
+	//if (rotationVector.y() < 0) {
+	//	pitch = -pitch;
+	//}
+
+	//if (pitch < -90 || pitch > 90) {
+	//	yaw += 180;
+	//}
+
+	cout << "yaw: " << yaw << "    pitch: " << pitch << endl;
+
+	display->moveFPVdisplay(yaw, pitch, upVector.y() < 0);
+
+	rndr->core().camera_eye = headPosFixedScale;
+	rndr->core().camera_center = headPosFixedScale + (joints[0].GetRotation() * Eigen::Vector3d(0, 0, 1)).cast<float>();
+	rndr->core().camera_up = Eigen::Vector3f(0, 1, 0);
 }
 
 void SandBox::Animate()
@@ -627,10 +741,14 @@ void SandBox::Animate()
 		eatSphere(intersectedWith);
 	}
 	if (firstPersonView) {
-		const Eigen::Vector3f headPos = getHeadPos().cast<float>();
-		rndr->core().camera_eye = headPos;
-		rndr->core().camera_center = headPos + (joints[0].GetRotation() * Eigen::Vector3d(0, 0, 1)).cast<float>();
-		rndr->core().camera_up = Eigen::Vector3f(0, 1, 0);
+		moveFPV();
+	}
+	if (backgroundMusic) {
+		backgroundMusic->setVolume(muted ? 0 : 10);
+	}
+	if (score == maxScore && notPlayed) {
+		SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/levelComplete.wav");
+		notPlayed = false;
 	}
 }
 
@@ -656,5 +774,5 @@ void SandBox::test() {
 	Eigen::Matrix3d currentRotation = head.GetRotation();
 	//Eigen::Matrix3d translationMatrix = joints[0].MakeTransd().block<3, 3>(0,0);
 	Eigen::Matrix4d temp = translationMatrix * yRot;
-	vQ[0] = Eigen::Quaterniond(temp.block<3,3>(0,0).transpose());
+	vQ[0] = Eigen::Quaterniond(temp.block<3, 3>(0, 0).transpose());
 }

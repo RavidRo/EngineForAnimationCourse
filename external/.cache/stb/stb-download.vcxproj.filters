@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <CustomBuild Include="C:\Dev\EngineForAnimationCourse\external\.cache\stb\CMakeFiles\50d1f4993b968176e85c8bee94448529\stb-download-mkdir.rule">
       <Filter>CMake Rules</Filter>

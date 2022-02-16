@@ -1,18 +1,6 @@
 ^C:\DEV\ENGINEFORANIMATIONCOURSE\EXTERNAL\.CACHE\EIGEN\CMAKEFILES\287ECBD3195BF489719E61FC08B1218A\EIGEN-DOWNLOAD-MKDIR.RULE
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/cmake/../external/eigen
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/build/eigen-build
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/eigen/eigen-download-prefix
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/eigen/eigen-download-prefix/tmp
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/Debug
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/eigen/eigen-download-prefix/src
-if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp
+"C:\Program Files\CMake\bin\cmake.exe" -P C:/Dev/EngineForAnimationCourse/external/.cache/eigen/eigen-download-prefix/tmp/eigen-download-mkdirs.cmake
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Dev/EngineForAnimationCourse/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/Debug/eigen-download-mkdir
 if %errorlevel% neq 0 goto :cmEnd
