@@ -12,6 +12,11 @@
 
 using namespace std;
 
+const int MODE_DEAD = 0;
+const int MODE_NORMAL = 1;
+const int MODE_SUPERSPEED = 2;
+const int MODE_BOMB = 3;
+
 // Settings
 double scale_num = 1;
 double snake_length = 1.6;
@@ -19,7 +24,7 @@ double num_of_joints = 16;
 double tail = (-1) * (snake_length / 2);
 double head = snake_length / 2;
 double dist_joint = snake_length / num_of_joints;
-const double moveBy = 0.05 * scale_num;
+double moveBy = 0.05 * scale_num;
 const double rotateBy = 0.1;
 const double cameraDistance = 10.0;
 
@@ -29,6 +34,10 @@ double frameNum = 0;
 float lastXs = 0;
 float lastYs = 0;
 float lastZs = 0;
+
+double superSpeedTimer = 0;
+
+Eigen::Matrix3d currentRot = Eigen::Matrix3d::Identity();
 
 string snakeName = "C:/Dev/EngineForAnimationCourse/tutorial/data/snake2.obj";
 
@@ -49,10 +58,22 @@ SandBox::SandBox(Display* disp, Renderer* rend)
 	numOfSpheres = 3;
 	maxScore = 0;
 	firstTime = true;
-	SoundEngine = irrklang::createIrrKlangDevice();
+	//SoundEngine = irrklang::createIrrKlangDevice();
 	this->muted = false;
 	notPlayed = false;
 	playMusic();
+}
+
+void SandBox::moveBalls() {
+	for (int i = 0; i < data_list.size() - 1; i++)
+	{
+		double ballSpeed = ballsSpeeds[i];
+		data(i).MyTranslate(Eigen::Vector3d(0, 0, ballSpeed), false);
+		ballsDistances[i] += ballSpeed;
+		if (abs(ballsDistances[i]) > ballsMaxDistances[i]) {
+			ballsSpeeds[i] = -1 * ballsSpeeds[i];
+		}
+	}
 }
 
 bool SandBox::getFirstTime() {
@@ -70,7 +91,7 @@ void SandBox::changeView() {
 }
 
 void SandBox::playMusic() {
-	backgroundMusic = SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/breakout.mp3", true, false, true);
+	//backgroundMusic = SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/breakout.mp3", true, false, true);
 }
 
 Eigen::Vector3d SandBox::getHeadPos() {
@@ -270,6 +291,16 @@ void SandBox::setupLevel() {
 		Eigen::Vector3d resetVector = -1 * toCenter(data_list[i]);
 		data_list[i].MyTranslate(resetVector, true);
 		data_list[i].MyTranslate(Eigen::Vector3d(randX, randY, randZ), true);
+
+		//Set the ball mode
+		int mode = rand() % 2 + 1;
+		if (mode == MODE_NORMAL) {
+			data_list[i].set_colors(Eigen::Vector3d(0, 1, 0));
+		}
+		else if (mode == MODE_SUPERSPEED) {
+			data_list[i].set_colors(Eigen::Vector3d(0, 0, 1));
+		}
+		ballMode[i] = mode;
 	}
 	firstTime = false;
 	maxScore += numOfSpheres;
@@ -278,13 +309,23 @@ void SandBox::setupLevel() {
 }
 
 void SandBox::setupObjects() {
-	string spherePath = "C:/Dev/EngineForAnimationCourse/tutorial/data/sphere.obj";
+	const double defaultSpeed = 0.02;
+	const double defaultMaxDistance = 1;
 
 	srand(time(0));
+	
+	string spherePath = "C:/Dev/EngineForAnimationCourse/tutorial/data/sphere.obj";
 
 	//int num1 = 6 * scale_num;
 	//int num2 = 3 * scale_num;
 	for (int i = 0; i < 20; i++) {
+
+		ballsDistances.push_back(0);
+		double randomSpeed = defaultSpeed + double(rand() % 6 - 3) / 100;
+		ballsSpeeds.push_back(randomSpeed);
+		ballsMaxDistances.push_back(defaultMaxDistance + double(rand() % 10 - 5) / 10);
+		ballMode.push_back(MODE_DEAD);
+
 		//double randX = (rand() % num1) - num2;
 		//double randY = 0;
 		//double randZ = (rand() % num1) - num2;
@@ -297,7 +338,21 @@ void SandBox::setupObjects() {
 		data().line_width = 2;
 		data().set_visible(false, 1);
 		data().MyTranslate(Eigen::Vector3d(100, 100, 100), true);
+		double randomColor1 = double(rand() % 100) / 100;
+		double randomColor2 = double(rand() % 100) / 100;
+		double randomColor3 = double(rand() % 100) / 100;
+		//data().set_colors(Eigen::RowVector3d(1, 1, 1));
+		//data().uniform_colors(Eigen::Vector3d(0.5,0.5,0.5), Eigen::Vector3d(1, 1, 1), Eigen::Vector3d(1, 1, 1));
 
+
+		double rotation = rand() % 360;
+		Eigen::Matrix3d yRot;
+		yRot <<
+			cos(rotation), 0, sin(rotation),
+			0, 1, 0,
+			-1 * sin(rotation), 0, cos(rotation);
+		data().MyRotate(yRot);
+		//data().MyScale()
 	}
 }
 
@@ -444,7 +499,8 @@ void SandBox::moveLeft() {
 		0, 1, 0,
 		-1 * sin(rotateBy), 0, cos(rotateBy);
 
-	move(moveBy, yRot, true);
+	currentRot = yRot;
+	//move(moveBy, yRot, true);
 }
 void SandBox::moveRight() {
 	Eigen::Matrix3d yRot;
@@ -453,7 +509,9 @@ void SandBox::moveRight() {
 		0, 1, 0,
 		-1 * sin(-1 * rotateBy), 0, cos(-1 * rotateBy);
 
-	move(moveBy, yRot, true);
+	currentRot = yRot;
+
+	//move(moveBy, yRot, true);
 }
 void SandBox::moveDown() {
 	Eigen::Matrix3d xRot;
@@ -462,7 +520,9 @@ void SandBox::moveDown() {
 		0, cos(rotateBy), -1 * sin(rotateBy),
 		0, sin(rotateBy), cos(rotateBy);
 
-	move(moveBy, xRot, false);
+	currentRot = xRot;
+
+	//move(moveBy, xRot, false);
 }
 void SandBox::moveUp() {
 	Eigen::Matrix3d xRot;
@@ -471,7 +531,9 @@ void SandBox::moveUp() {
 		0, cos(-1 * rotateBy), -1 * sin(-1 * rotateBy),
 		0, sin(-1 * rotateBy), cos(-1 * rotateBy);
 
-	move(moveBy, xRot, false);
+	currentRot = xRot;
+
+	//move(moveBy, xRot, false);
 }
 
 int SandBox::getScore() {
@@ -681,9 +743,13 @@ void SandBox::incScore() {
 }
 
 void SandBox::eatSphere(int dataNum) {
-	SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/eatSphere.wav");
+	//SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/eatSphere.wav");
 	data(dataNum).MyTranslate(Eigen::Vector3d(100, 100, 100), false);
 	incScore();
+	if (ballMode[dataNum] == MODE_SUPERSPEED) {
+		superSpeedTimer += 50;
+	}
+	ballMode[dataNum] = MODE_DEAD;
 	cout << "Score: " << score << endl;
 }
 
@@ -732,6 +798,10 @@ void SandBox::moveFPV(){
 
 void SandBox::Animate()
 {
+	double currentMoveSpeed = superSpeedTimer > 0 ? moveBy * 2 : moveBy;
+	superSpeedTimer = max(0.0, superSpeedTimer - 1);
+	move(currentMoveSpeed, currentRot, false);
+	currentRot = Eigen::Matrix3d::Identity();
 	skin();
 	debugSnake();
 	setIKOverlay();
@@ -743,13 +813,14 @@ void SandBox::Animate()
 	if (firstPersonView) {
 		moveFPV();
 	}
-	if (backgroundMusic) {
-		backgroundMusic->setVolume(muted ? 0 : 10);
-	}
+	//if (backgroundMusic) {
+	//	backgroundMusic->setVolume(muted ? 0 : 10);
+	//}
 	if (score == maxScore && notPlayed) {
-		SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/levelComplete.wav");
+		//SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/levelComplete.wav");
 		notPlayed = false;
 	}
+	moveBalls();
 }
 
 void SandBox::test() {

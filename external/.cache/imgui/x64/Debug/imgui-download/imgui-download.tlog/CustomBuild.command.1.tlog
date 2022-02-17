@@ -1,6 +1,18 @@
 ^C:\DEV\ENGINEFORANIMATIONCOURSE\EXTERNAL\.CACHE\IMGUI\CMAKEFILES\F77606D8BC99E298D44122C1D12C92B4\IMGUI-DOWNLOAD-MKDIR.RULE
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -P C:/Dev/EngineForAnimationCourse/external/.cache/imgui/imgui-download-prefix/tmp/imgui-download-mkdirs.cmake
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/cmake/../external/imgui
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/build/imgui-build
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/imgui/imgui-download-prefix
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/imgui/imgui-download-prefix/tmp
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/Debug
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/imgui/imgui-download-prefix/src
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Dev/EngineForAnimationCourse/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/Debug/imgui-download-mkdir
 if %errorlevel% neq 0 goto :cmEnd

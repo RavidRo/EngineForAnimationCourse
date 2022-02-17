@@ -1,6 +1,18 @@
 ^C:\DEV\ENGINEFORANIMATIONCOURSE\EXTERNAL\.CACHE\GLFW\CMAKEFILES\E78E77F0BD680B46414144F1EF510BE5\GLFW-DOWNLOAD-MKDIR.RULE
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -P C:/Dev/EngineForAnimationCourse/external/.cache/glfw/glfw-download-prefix/tmp/glfw-download-mkdirs.cmake
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/cmake/../external/glfw
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/build/glfw-build
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/glfw/glfw-download-prefix
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/glfw/glfw-download-prefix/tmp
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/Debug
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/glfw/glfw-download-prefix/src
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Dev/EngineForAnimationCourse/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Dev/EngineForAnimationCourse/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/Debug/glfw-download-mkdir
 if %errorlevel% neq 0 goto :cmEnd

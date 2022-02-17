@@ -204,7 +204,9 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			scn->moveRight();
 			break;
 		case ' ':
-
+			if (scn->getScore() == scn->getMaxScore()) {
+				scn->setupLevel();
+			}
 			break;
 
 		default:

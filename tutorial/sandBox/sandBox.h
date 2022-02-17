@@ -6,7 +6,7 @@
 #include <vector>
 #include <queue>
 #include <igl/opengl/glfw/renderer.h>
-#include <external/irrKlang/include/irrKlang.h>
+//#include <external/irrKlang/include/irrKlang.h>
 
 typedef std::vector<Eigen::Quaterniond, Eigen::aligned_allocator<Eigen::Quaterniond> > RotationList;
 
@@ -25,9 +25,14 @@ public:
 	RotationList vQ;
 	std::vector<std::queue<Eigen::Matrix3d>> rotationQueues;
 	std::vector<std::queue<Eigen::Vector3d>> translationQueues;
-	irrklang::ISoundEngine* SoundEngine;
-	irrklang::ISound* backgroundMusic;
+	//irrklang::ISoundEngine* SoundEngine;
+	//irrklang::ISound* backgroundMusic;
 	bool ObjectIntersectsSnake(Eigen::Vector3d headPos, Eigen::Vector3d objectPos,int i);
+
+	std::vector<double> ballsSpeeds;
+	std::vector<double> ballsDistances;
+	std::vector<double> ballsMaxDistances;
+	std::vector<int> ballMode;
 
 	void setupLevel();
 	int score;
@@ -44,6 +49,8 @@ public:
 	void resetTranspose();
 	void resetRotation();
 	void setIKOverlay();
+
+	void moveBalls();
 
 	void moveFPV();
 
