@@ -77,7 +77,11 @@ SandBox::SandBox(Display* disp, Renderer* rend)
 	this->debug = false;
 	this->numOfBombs = 0;
 	this->bombsToLaunch = 0;
-
+	this->hard = false;
+	this->timer = 0;
+	this->endTime = 0;
+	this->countFrames = 0;
+	this->level = 0;
 }
 void SandBox::moveBombs() {
 	int floor = 12;
@@ -95,6 +99,10 @@ void SandBox::moveBombs() {
 			}
 		}
 	}
+}
+
+bool SandBox::getHard() {
+	return hard;
 }
 
 void SandBox::moveBalls() {
@@ -357,7 +365,6 @@ void SandBox::setupSnake() {
 
 	setupTexture();
 
-
 	paintWeights();
 	resetTranspose();
 	resetRotation();
@@ -429,6 +436,13 @@ void SandBox::launchBombs() {
 	bombsToLaunch = numOfBombs;
 }
 
+void SandBox::lostGame() {
+	backgroundMusic->setIsPaused(true);
+	SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/GameOver.wav");
+	lost = true;
+
+}
+
 void SandBox::launchBomb() {
 	int index = nextBomb + 40;
 	ballMode[index] = MODE_BOMB;
@@ -440,13 +454,19 @@ void SandBox::launchBomb() {
 	nextBomb = nextBomb == bombsPoolSize ? 0 : nextBomb + 1;
 }
 
+int SandBox::getCDT() {
+	int remTime = endTime - timer;
+	if (remTime == 0) {
+		lostGame();
+	}
+	return endTime - timer;
+}
+
 void SandBox::setupLevel() {
 	int j = 1;
 	srand(time(0));
 
 	nextBomb = 0;
-
-
 
 	Eigen::Vector3d headPos = getHeadPosFixed();
 	int num1 = 6 * scale_num;
@@ -496,9 +516,20 @@ void SandBox::setupLevel() {
 		}
 	}
 
+	if (!getFirstTime()) {
+		level++;
+	}
+
+	if (hard) {
+		timer = std::time(0);
+		endTime = timer + (20 + level*10);
+	}
+
 	firstTime = false;
 	numOfNormals += 1;
 	notPlayed = true;
+
+
 }
 
 void SandBox::setupObjects() {
@@ -637,9 +668,9 @@ void SandBox::skin() {
 		absolutevT2.push_back(newPosition - jointPosition);
 	}
 
-	if (debug) {
-		cout << "debug" << endl;
-	}
+	//if (debug) {
+	//	cout << "debug" << endl;
+	//}
 
 	//igl::dqs(snake->V, W, identityvQ, resetvT, U1);
 	//igl::dqs(U1, W, vQ, identityvT, U2);
@@ -931,7 +962,9 @@ void SandBox::incScore() {
 
 void SandBox::restart() {
 	this->score = 0;
+	this->level = 0;
 	this->maxScore = 0;
+	this->firstTime = true;
 	this->numOfNormals = 3;
 	this->setupLevel();
 	this->lost = false;
@@ -953,9 +986,7 @@ void SandBox::eatSphere(int dataNum) {
 		superSpeedTimer += 50;
 	}
 	else if (ballMode[dataNum] == MODE_BOMB) {
-		SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/GameOver.wav");
-		backgroundMusic->setIsPaused(true);
-		lost = true;
+		lostGame();
 		return;
 	}
 	else if (ballMode[dataNum] == MODE_NORMAL) {
@@ -1057,6 +1088,14 @@ void SandBox::Animate()
 	if (score == maxScore && notPlayed) {
 		SoundEngine->play2D("C:/Dev/EngineForAnimationCourse/external/irrKlang/media/levelComplete.wav");
 		notPlayed = false;
+	}
+
+	if (hard && countFrames >= 25) {
+		timer = max(0, timer + 1);
+		countFrames = 0;
+	}
+	if (!paused) {
+		countFrames++;
 	}
 }
 

@@ -79,10 +79,13 @@ public:
 	Eigen::Vector3d getHeadPos();
 	Eigen::Vector3d SandBox::getHeadPosFixed();
 
-	void SandBox::moveBombs();
+	void moveBombs();
 	std::vector<double> bombsSpeeds;
-	void SandBox::launchBomb();
-	void SandBox::launchBombs();
+	void launchBomb();
+	void launchBombs();
+	bool getHard();
+
+	int getCDT();
 
 	int nextBomb;
 
@@ -93,6 +96,8 @@ public:
 	bool notPlayed;
 	void playMusic();
 	void restart();
+
+	void lostGame();
 
 	bool muted;
 	bool lost;
@@ -106,6 +111,12 @@ public:
 	int numOfBombs;
 	int bombsToLaunch;
 
+	bool hard;
+
+	int timer;
+	int endTime;
+	int countFrames;
+	int level;
 
 private:
 	// Prepare array-based edge data structures and priority queue

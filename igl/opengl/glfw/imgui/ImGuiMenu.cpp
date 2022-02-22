@@ -222,16 +222,16 @@ IGL_INLINE void ImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer, s
         bool hard = ImGui::Button("Hard", ImVec2(-1, 0));
         bool normal = ImGui::Button("Normal", ImVec2(-1, 0));
         bool quit = ImGui::Button("Quit", ImVec2(-1, 0));
-        if (hard) {
-
+        if (quit) {
+            exit(0);
         }
-        if (normal) {
+        else if (hard || normal) {
+            if (hard) {
+                sndbx->hard = true;
+            }
             //ImGui::Text("Score: %d", sndbx->getScore());
             sndbx->playMusic();
             sndbx->setupLevel();
-        }
-        if (quit) {
-            exit(0);
         }
     }
     else if (sndbx->lost) {
@@ -267,6 +267,9 @@ IGL_INLINE void ImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer, s
         }
         else {
             ImGui::Text("Score: %d", sndbx->getScore());
+            if (sndbx->hard) {
+                ImGui::Text("Countdown Timer: %d" ,sndbx->getCDT());
+            }
         }
     }
     ImGui::Checkbox("Mute", &sndbx->muted);
