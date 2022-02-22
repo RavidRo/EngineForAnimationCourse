@@ -25,7 +25,7 @@
 
 - When the the player starts the game he is prompted to choose a **difficulty level** to play in, normal or hard. During the game, the player completes each level by **scoring max points** and collecting all the "normal" spheres. The special objects do not add points. If the hard difficulty is selected the player has a set amount of time, which increses each level, to get all the points. If failed to collect all points on time, its game over. When the player completed a level he is promted with the option to exit or start the next level.
 
-- Pressing 'p' on the keyboard will pause the game (snake, moving objects, and music, and if hard difficulty was chosen the countdown timer will pause as well).
+- Pressing 'p' on the keyboard will **pause the game** (snake, moving objects, and music, and if hard difficulty was chosen the countdown timer will pause as well).
 
 - **Cube Map** - loaded a 3D cube map as an environemnt.
 
