@@ -218,10 +218,14 @@ IGL_INLINE void ImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer, s
     no_move = true;
     no_resize = true;
     if (sndbx->getFirstTime()) {
-        ImGui::Text("Press SPACEBAR to start playing");
-        bool start = ImGui::Button("Start", ImVec2(-1, 0));
+        ImGui::Text("Press SPACEBAR to start playing (Normal)");
+        bool hard = ImGui::Button("Hard", ImVec2(-1, 0));
+        bool normal = ImGui::Button("Normal", ImVec2(-1, 0));
         bool quit = ImGui::Button("Quit", ImVec2(-1, 0));
-        if (start) {
+        if (hard) {
+
+        }
+        if (normal) {
             //ImGui::Text("Score: %d", sndbx->getScore());
             sndbx->playMusic();
             sndbx->setupLevel();
