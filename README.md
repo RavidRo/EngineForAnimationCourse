@@ -10,10 +10,10 @@
 - **Interactive menu** at the beginning of the game and between levels, that indicates the **current score**, and supports the option to mute the background music.
 
 - The **3D moving objects** that are featured in our game are:  
-    - "Normal" spheres that add points to the player.
-    - "Super Speed" cubes that increase the snake's speed and length for a certain amount of time.
-    - "Bomb" cubes, that when interacted launch a missle attack of bouncing spheres that fall according to **gravity physics**, that if touched, end the game.
-    - "Game Over" cubes, when touched they finish the game for the player.  
+    - *"Normal"* spheres that add points to the player.
+    - *"Super Speed"* cubes that increase the snake's speed and length for a certain amount of time.
+    - *"Bomb"* cubes, that when interacted launch a missle attack of bouncing spheres that fall according to **gravity physics**, that if touched, end the game.
+    - *"Game Over"* cubes, when touched they finish the game for the player.  
     
     Each 3D object is initialized with a **random velocity & direction**, and a random location inside the game.
 
