@@ -20,8 +20,8 @@
 #include <external/learnopengl/camera.h>
 #include <external/learnopengl/model.h>
 
-#define VIEWPORT_WIDTH 1000
-#define VIEWPORT_HEIGHT 800 // TODO maybe delete?
+#define VIEWPORT_WIDTH 1920
+#define VIEWPORT_HEIGHT 1080
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, int button, int action, int modifier);
@@ -87,6 +87,51 @@ Display::Display(int windowWidth, int windowHeight, const std::string& title)
 
 bool Display::launch_rendering(bool loop)
 {
+	float cubeVertices[] = {
+		// positions          // normals
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+	};
+
 	float skyboxVertices[] = {
 		// positions          
 		-1.0f,  1.0f, -1.0f,
@@ -131,10 +176,23 @@ bool Display::launch_rendering(bool loop)
 		-1.0f, -1.0f,  1.0f,
 		 1.0f, -1.0f,  1.0f
 	};
-
+	Shader cubemapShader("../../../shaders/cubemap.vs", "../../../shaders/cubemap.fs");
 	Shader skyboxShader("../../../shaders/skybox.vs", "../../../shaders/skybox.fs");
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
+
+	// cube VAO
+	//unsigned int cubeVAO, cubeVBO;
+	//glGenVertexArrays(1, &cubeVAO);
+	//glGenBuffers(1, &cubeVBO);
+	//glBindVertexArray(cubeVAO);
+	//glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	//glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
 	// skybox VAO
 	unsigned int skyboxVAO, skyboxVBO;
 	glGenVertexArrays(1, &skyboxVAO);
@@ -157,6 +215,9 @@ bool Display::launch_rendering(bool loop)
 
 	};
 	unsigned int cubemapTexture = loadCubemap(faces);
+
+	//cubemapShader.use();
+	//cubemapShader.setInt("skybox", 0);
 
 	skyboxShader.use(); // shader configuration
 	skyboxShader.setInt("skybox", 0);
@@ -192,6 +253,25 @@ bool Display::launch_rendering(bool loop)
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
+		// render
+		// ------
+		//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// draw scene as normal
+		//cubemapShader.use();
+		//glm::mat4 model = glm::mat4(1.0f);
+		//cubemapShader.setMat4("model", model);
+		//cubemapShader.setMat4("view", view);
+		//cubemapShader.setMat4("projection", projection);
+		//cubemapShader.setVec3("cameraPos", camera.Position);
+		////// cubes
+		//glBindVertexArray(cubeVAO);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(0);
+
 		// draw skybox as last
 		glDepthFunc(GL_LEQUAL); 
 		skyboxShader.use();
@@ -217,8 +297,6 @@ bool Display::launch_rendering(bool loop)
 		glDepthFunc(GL_LESS); 
 
 
-
-
 		glfwSwapBuffers(window);
 		if (renderer->core().is_animating || frame_counter++ < num_extra_frames)
 		{//motion
@@ -229,15 +307,6 @@ bool Display::launch_rendering(bool loop)
 			if (duration < min_duration)
 			{
 				std::this_thread::sleep_for(std::chrono::microseconds((int)(min_duration - duration)));
-				// // assignment2
-				// if(renderer->keepMoving){
-				// 	renderer->moveBox();
-				// 	renderer->detectCollision(
-				// 		renderer->GetScene()->data_list[0].tree, 
-				// 		renderer->GetScene()->data_list[1].tree
-				// 	);
-					
-				// }
 			}
 		}
 		else
@@ -311,7 +380,6 @@ void Display::moveFPVdisplay(float ourYaw, float ourPitch, bool flip) {
 	camera.ProcessFPV(ourYaw, ourPitch, flip, false);
 }
 
-// moved from inputmanager
 void mouse_callback(GLFWwindow* window, int button, int action, int modifier)
 {
   Renderer* rndr = (Renderer*) glfwGetWindowUserPointer(window);
@@ -354,20 +422,17 @@ void mouse_callback(GLFWwindow* window, int button, int action, int modifier)
 
 
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) // TODO : understand
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 
 	Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 	if(rndr->IsPicked())
-		// rndr->GetScene()->data().MyScale(Eigen::Vector3d(1 + y * 0.01,1 + y * 0.01,1+y*0.01));
 		rndr->GetScene()->data().MyTranslate(Eigen::Vector3d(0, 0, -yoffset * 0.03), true);
 	else
 		rndr->GetScene()->MyTranslate(Eigen::Vector3d(0,0, - yoffset * 0.03),true);
 
 }
-// from learnopengl
-// utility function for loading a 2D texture from file
-// ---------------------------------------------------
+
 unsigned int loadTexture(char const* path)
 {
 	unsigned int textureID;
@@ -405,16 +470,7 @@ unsigned int loadTexture(char const* path)
 	return textureID;
 }
 
-// from learnopengl
-// loads a cubemap texture from 6 individual texture faces
-// order:
-// +X (right)
-// -X (left)
-// +Y (top)
-// -Y (bottom)
-// +Z (front) 
-// -Z (back)
-// -------------------------------------------------------
+
 unsigned int loadCubemap(std::vector<std::string> faces)
 {
 	unsigned int textureID;

@@ -16,7 +16,6 @@ static void glfw_mouse_press(GLFWwindow* window, int button, int action, int mod
 
 	if (action == GLFW_PRESS)
 	{
-		std::cout << "yo2" << std::endl;
 
 		double x2, y2;
 		glfwGetCursorPos(window, &x2, &y2);
@@ -129,6 +128,14 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			scn->changeView();
 			break;
 		}
+
+		case 'd':
+		case 'D':
+		{
+			scn->debug = !scn->debug;
+			break;
+		}
+
 		case 'I':
 		case 'i':
 		{
@@ -142,6 +149,21 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			rndr->core().toggle(scn->data().show_lines);
 			break;
 		}
+		
+		case 'm':
+		case 'M':
+		{
+			scn->muted = !scn->muted;
+			break;
+		}
+
+		case 'p':
+		case 'P':
+		{
+			scn->pauseGame();
+			break;
+		}
+
 		case 'O':
 		case 'o':
 		{
@@ -204,8 +226,14 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			scn->moveRight();
 			break;
 		case ' ':
+			if (scn->getFirstTime()){
+				scn->playMusic();
+			}
 			if (scn->getScore() == scn->getMaxScore()) {
 				scn->setupLevel();
+			}
+			else if (scn->lost) {
+				scn->restart();
 			}
 			break;
 

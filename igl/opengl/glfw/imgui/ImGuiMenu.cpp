@@ -218,19 +218,40 @@ IGL_INLINE void ImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer, s
     no_move = true;
     no_resize = true;
     if (sndbx->getFirstTime()) {
+        ImGui::Text("Press SPACEBAR to start playing");
         bool start = ImGui::Button("Start", ImVec2(-1, 0));
         bool quit = ImGui::Button("Quit", ImVec2(-1, 0));
         if (start) {
             //ImGui::Text("Score: %d", sndbx->getScore());
+            sndbx->playMusic();
             sndbx->setupLevel();
         }
         if (quit) {
             exit(0);
         }
     }
+    else if (sndbx->lost) {
+        ImGui::Text("You lost");
+        ImGui::Text("Press SPACEBAR to try again");
+        bool start = ImGui::Button("Restart", ImVec2(-1, 0));
+        bool quit = ImGui::Button("Quit", ImVec2(-1, 0));
+        if (start) {
+            sndbx->restart();
+        }
+        if (quit) {
+            exit(0);
+        }
+    }
+
+    else if (sndbx->paused) {
+        ImGui::Text("Score: %d", sndbx->getScore());
+        ImGui::Text("Paused, press 'P' to continue.");
+    }
+
     else {
         if (sndbx->getScore() == sndbx->getMaxScore()) {
-            ImGui::Text("Congratulations! Total Score: %d", sndbx->getScore());
+            ImGui::Text("Level Completed!");
+            ImGui::Text("Total Score: %d", sndbx->getScore());
             bool start = ImGui::Button("Next Level", ImVec2(-1, 0));
             bool quit = ImGui::Button("Quit", ImVec2(-1, 0));
             if (start) {
@@ -245,120 +266,140 @@ IGL_INLINE void ImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer, s
         }
     }
     ImGui::Checkbox("Mute", &sndbx->muted);
-
-    //if (sndbx->getScore() < sndbx->getMaxScore()) {
-    //    ImGui::Text("Score: %d", sndbx->getScore());
-    //    std::cout << "score: " << sndbx->getScore() << "    max score: " << sndbx->getMaxScore() << std::endl;
-    //}
-    //else {
-    //    ImGui::Text("Congratulations! Total Score: %d", sndbx->getScore());
-    //    std::cout << "score: " << sndbx->getScore() << "    max score: " << sndbx->getMaxScore() << std::endl;
-    //    sndbx->setupLevel();
-    //}
     ImGui::End();
 
-    //else {
-    //    ImGui::End();
-    //}
+    //bool* p_open = NULL;
+    //static bool no_titlebar = false;
+    //static bool no_scrollbar = false;
+    //static bool no_menu = true;
+    //static bool no_move = false;
+    //static bool no_resize = false;
+    //static bool no_collapse = false;
+    //static bool no_close = false;
+    //static bool no_nav = false;
+    //static bool no_background = false;
+    //static bool no_bring_to_front = false;
+
+    //ImGuiWindowFlags window_flags = 0;
+    //if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
+    //if (no_scrollbar)       window_flags |= ImGuiWindowFlags_NoScrollbar;
+    //if (!no_menu)           window_flags |= ImGuiWindowFlags_MenuBar;
+    //if (no_move)            window_flags |= ImGuiWindowFlags_NoMove;
+    //if (no_resize)          window_flags |= ImGuiWindowFlags_NoResize;
+    //if (no_collapse)        window_flags |= ImGuiWindowFlags_NoCollapse;
+    //if (no_nav)             window_flags |= ImGuiWindowFlags_NoNav;
+    //if (no_background)      window_flags |= ImGuiWindowFlags_NoBackground;
+    //if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+
     //ImGui::Begin(
-    //    "why", p_open,
+    //    "Viewer", p_open,
+    //    window_flags
+    //);
+    //ImGui::SetWindowPos(ImVec2(core[0].viewport[0], core[0].viewport[1]), ImGuiCond_Always);
+    //ImGui::SetWindowSize(ImVec2(core[0].viewport[2], core[0].viewport[3]), ImGuiCond_Always);
+    //ImGui::End();
+    //no_move = true;
+    //no_resize = true;
+    //ImGui::Begin(
+    //    "Viewer", p_open,
     //    window_flags
     //);
 
-  //// Mesh
-  //if (ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
-  //{
-  //  float w = ImGui::GetContentRegionAvailWidth();
-  //  float p = ImGui::GetStyle().FramePadding.x;
-  //  if (ImGui::Button("Load##Mesh", ImVec2((w-p)/2.f, 0)))
-  //  {
-  //      int savedIndx = viewer->selected_data_index;
-  //    viewer->open_dialog_load_mesh();
-  //    if (viewer->data_list.size() > viewer->parents.size())
-  //    {
-  //        viewer->parents.push_back(-1);
-  //        viewer->data_list.back().set_visible(false, 1);
-  //        viewer->data_list.back().set_visible(true, 2);
-  //        viewer->data_list.back().show_faces = 3;
-  //        viewer->selected_data_index = savedIndx;
-  //    }
-  //  }
-  //  ImGui::SameLine(0, p);
-  //  if (ImGui::Button("Save##Mesh", ImVec2((w-p)/2.f, 0)))
-  //  {
-  //    viewer->open_dialog_save_mesh();
-  //  }
-  //}
+    //// Mesh
+    //if (ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+    //{
+    //    float w = ImGui::GetContentRegionAvailWidth();
+    //    float p = ImGui::GetStyle().FramePadding.x;
+    //    if (ImGui::Button("Load##Mesh", ImVec2((w - p) / 2.f, 0)))
+    //    {
+    //        int savedIndx = viewer->selected_data_index;
+    //        viewer->open_dialog_load_mesh();
+    //        if (viewer->data_list.size() > viewer->parents.size())
+    //        {
+    //            viewer->parents.push_back(-1);
+    //            viewer->data_list.back().set_visible(false, 1);
+    //            viewer->data_list.back().set_visible(true, 2);
+    //            viewer->data_list.back().show_faces = 3;
+    //            viewer->selected_data_index = savedIndx;
+    //        }
+    //    }
+    //    ImGui::SameLine(0, p);
+    //    if (ImGui::Button("Save##Mesh", ImVec2((w - p) / 2.f, 0)))
+    //    {
+    //        viewer->open_dialog_save_mesh();
+    //    }
+    //}
 
-  //// Viewing options
-  //if (ImGui::CollapsingHeader("Viewing Options", ImGuiTreeNodeFlags_DefaultOpen))
-  //{
-  //  if (ImGui::Button("Center object", ImVec2(-1, 0)))
-  //  {
-  //    core[1].align_camera_center(viewer->data().V, viewer->data().F);
-  //  }
-  //  //if (ImGui::Button("Snap canonical view", ImVec2(-1, 0)))
-  //  //{
-  //  //  core[1].snap_to_canonical_quaternion();
-  //  //}
+    //// Viewing options
+    //if (ImGui::CollapsingHeader("Viewing Options", ImGuiTreeNodeFlags_DefaultOpen))
+    //{
+    //    if (ImGui::Button("Center object", ImVec2(-1, 0)))
+    //    {
+    //        core[1].align_camera_center(viewer->data().V, viewer->data().F);
+    //    }
+    //    //if (ImGui::Button("Snap canonical view", ImVec2(-1, 0)))
+    //    //{
+    //    //  core[1].snap_to_canonical_quaternion();
+    //    //}
 
-  //  // Zoom
-  //  ImGui::PushItemWidth(80 * menu_scaling());
-  //  ImGui::DragFloat("Zoom", &(core[1].camera_zoom), 0.05f, 0.1f, 20.0f);
+    //    // Zoom
+    //    ImGui::PushItemWidth(80 * menu_scaling());
+    //    ImGui::DragFloat("Zoom", &(core[1].camera_zoom), 0.05f, 0.1f, 20.0f);
 
-  //  // Select rotation type
-  //  int rotation_type = static_cast<int>(core[1].rotation_type);
-  //  static Eigen::Quaternionf trackball_angle = Eigen::Quaternionf::Identity();
-  //  static bool orthographic = true;
+    //    // Select rotation type
+    //    int rotation_type = static_cast<int>(core[1].rotation_type);
+    //    static Eigen::Quaternionf trackball_angle = Eigen::Quaternionf::Identity();
+    //    static bool orthographic = true;
 
-  //  // Orthographic view
-  //  ImGui::Checkbox("Orthographic view", &(core[1].orthographic));
-  //  ImGui::PopItemWidth();
-  //}
+    //    // Orthographic view
+    //    ImGui::Checkbox("Orthographic view", &(core[1].orthographic));
+    //    ImGui::PopItemWidth();
+    //}
 
-  //// Helper for setting viewport specific mesh options
-  //auto make_checkbox = [&](const char *label, unsigned int &option)
-  //{
-  //  return ImGui::Checkbox(label,
-  //    [&]() { return core[1].is_set(option); },
-  //    [&](bool value) { return core[1].set(option, value); }
-  //  );
-  //};
-  //   /* ImGui::ColorEdit4("Background", core[1].background_color.data(),
-  //    ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_PickerHueWheel);*/
+    //// Helper for setting viewport specific mesh options
+    //auto make_checkbox = [&](const char* label, unsigned int& option)
+    //{
+    //    return ImGui::Checkbox(label,
+    //        [&]() { return core[1].is_set(option); },
+    //        [&](bool value) { return core[1].set(option, value); }
+    //    );
+    //};
+    ///* ImGui::ColorEdit4("Background", core[1].background_color.data(),
+    // ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_PickerHueWheel);*/
 
 
-  //// Draw options
-  //if (ImGui::CollapsingHeader("Draw Options", ImGuiTreeNodeFlags_DefaultOpen))
-  //{
-  //  if (ImGui::Checkbox("Face-based", &(viewer->data().face_based)))
-  //  {
-  //    viewer->data().dirty = MeshGL::DIRTY_ALL;
-  //  }
-  //  make_checkbox("Show texture", viewer->data().show_texture);
-  //  if (ImGui::Checkbox("Invert normals", &(viewer->data().invert_normals)))
-  //  {
-  //    viewer->data().dirty |= igl::opengl::MeshGL::DIRTY_NORMAL;
-  //  }
-  //  make_checkbox("Show overlay", viewer->data().show_overlay);
-  //  make_checkbox("Show overlay depth", viewer->data().show_overlay_depth);
-  //  
-  //  ImGui::ColorEdit4("Line color", viewer->data().line_color.data(),
-  //      ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_PickerHueWheel);
-  //  ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
-  //  ImGui::DragFloat("Shininess", &(viewer->data().shininess), 0.05f, 0.0f, 100.0f);
-  //  ImGui::PopItemWidth();
-  //}
+    // // Draw options
+    //if (ImGui::CollapsingHeader("Draw Options", ImGuiTreeNodeFlags_DefaultOpen))
+    //{
+    //    if (ImGui::Checkbox("Face-based", &(viewer->data().face_based)))
+    //    {
+    //        viewer->data().dirty = MeshGL::DIRTY_ALL;
+    //    }
+    //    make_checkbox("Show texture", viewer->data().show_texture);
+    //    if (ImGui::Checkbox("Invert normals", &(viewer->data().invert_normals)))
+    //    {
+    //        viewer->data().dirty |= igl::opengl::MeshGL::DIRTY_NORMAL;
+    //    }
+    //    make_checkbox("Show overlay", viewer->data().show_overlay);
+    //    make_checkbox("Show overlay depth", viewer->data().show_overlay_depth);
 
-  //// Overlays
-  //if (ImGui::CollapsingHeader("Overlays", ImGuiTreeNodeFlags_DefaultOpen))
-  //{
-  //  make_checkbox("Wireframe", viewer->data().show_lines);
-  //  make_checkbox("Fill", viewer->data().show_faces);
+    //    ImGui::ColorEdit4("Line color", viewer->data().line_color.data(),
+    //        ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_PickerHueWheel);
+    //    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f);
+    //    ImGui::DragFloat("Shininess", &(viewer->data().shininess), 0.05f, 0.0f, 100.0f);
+    //    ImGui::PopItemWidth();
+    //}
 
-  //}
-  // 
-  //ImGui::End();
+    //// Overlays
+    //if (ImGui::CollapsingHeader("Overlays", ImGuiTreeNodeFlags_DefaultOpen))
+    //{
+    //    make_checkbox("Wireframe", viewer->data().show_lines);
+    //    make_checkbox("Fill", viewer->data().show_faces);
+
+    //}
+    //ImGui::End();
+
+
 }
 
 IGL_INLINE void ImGuiMenu::draw_labels_window(igl::opengl::glfw::Viewer* viewer,  const igl::opengl::ViewerCore* core)

@@ -6,7 +6,7 @@
 #include <vector>
 #include <queue>
 #include <igl/opengl/glfw/renderer.h>
-//#include <external/irrKlang/include/irrKlang.h>
+#include <external/irrKlang/include/irrKlang.h>
 
 typedef std::vector<Eigen::Quaterniond, Eigen::aligned_allocator<Eigen::Quaterniond> > RotationList;
 
@@ -25,8 +25,8 @@ public:
 	RotationList vQ;
 	std::vector<std::queue<Eigen::Matrix3d>> rotationQueues;
 	std::vector<std::queue<Eigen::Vector3d>> translationQueues;
-	//irrklang::ISoundEngine* SoundEngine;
-	//irrklang::ISound* backgroundMusic;
+	irrklang::ISoundEngine* SoundEngine;
+	irrklang::ISound* backgroundMusic;
 	bool ObjectIntersectsSnake(Eigen::Vector3d headPos, Eigen::Vector3d objectPos,int i);
 
 	std::vector<double> ballsSpeeds;
@@ -37,11 +37,22 @@ public:
 	void setupLevel();
 	int score;
 	int maxScore;
-	int numOfSpheres;
+	int numOfNormals;
 
 	Eigen::MatrixXd calculateJointsMatrix();
 	void setupSnake();
 	void setupObjects();
+
+	void setupTexture();
+
+	bool checkV(Eigen::Vector3d vRow);
+
+	bool checkF(Eigen::Vector3i fRow);
+
+	void linearTexture(Eigen::MatrixXd* V_uv, Eigen::MatrixXd F);
+
+	double linearToCenter(Eigen::Vector3d V_uvRow);
+
 	void debugSnake();
 	void paintWeights();
 	void setupJoints();
@@ -66,14 +77,35 @@ public:
 	bool moved = false;
 	bool firstPersonView;
 	Eigen::Vector3d getHeadPos();
+	Eigen::Vector3d SandBox::getHeadPosFixed();
+
+	void SandBox::moveBombs();
+	std::vector<double> bombsSpeeds;
+	void SandBox::launchBomb();
+	void SandBox::launchBombs();
+
+	int nextBomb;
+
 	int getScore();
 	int getMaxScore();
 
 	bool getFirstTime();
 	bool notPlayed;
 	void playMusic();
+	void restart();
 
 	bool muted;
+	bool lost;
+
+	bool paused;
+	bool initBM;
+	void pauseGame();
+	
+	bool debug;
+
+	int numOfBombs;
+	int bombsToLaunch;
+
 
 private:
 	// Prepare array-based edge data structures and priority queue
